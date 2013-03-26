@@ -1,5 +1,7 @@
 package com.github.sirkarpfen.main;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -9,8 +11,15 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.github.sirkarpfen.entities.MovingDirection;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
+import com.github.sirkarpfen.entities.Direction;
+import com.github.sirkarpfen.entities.Entity;
 import com.github.sirkarpfen.entities.Player;
+import com.github.sirkarpfen.entities.listeners.EntityContactListener;
+import com.github.sirkarpfen.maps.MapHandler;
 
 /**
  * The base game class. Handles rendering/disposal/logic updates and more.
@@ -27,14 +36,6 @@ public class Game implements ApplicationListener {
 	/* Helper class for dealing with tiled maps. Credits go to "dpk". */
 	private MapHandler mapHandler;
 	private KeyInputHandler keyInput;
-
-	/*
-	 * The screen's width and height. This may not match that computed by
-	 * libgdx's gdx.graphics.getWidth() / getHeight() on devices that make use
-	 * of on-screen menu buttons.
-	 */
-	private int screenWidth;
-	private int screenHeight;
 	
 	/* FPS font and the SpriteBatch to use for all rendering. */
 	private BitmapFont font;
@@ -45,13 +46,24 @@ public class Game implements ApplicationListener {
 	
 	/* Represents the player character. */
 	private Player player;
+
+	private World world;
 	
-	public Game(int width, int height) {
-		super();
-		
-		screenWidth = width;
-		screenHeight = height;
-	}
+	public World getWorld() { return world; }
+	
+	@SuppressWarnings ("unused")
+	private Box2DDebugRenderer debugRenderer;
+	
+	public static final float WORLD_TO_BOX = 0.01F;
+	public static final float BOX_TO_WORLD = 100F;
+
+	/*
+	 * The screen's width and height. This may not match that computed by
+	 * libgdx's gdx.graphics.getWidth() / getHeight() on devices that make use
+	 * of on-screen menu buttons.
+	 */
+	private static final int WIDTH = 800;
+	private static final int HEIGHT = 600;
 	
 	/**
 	 * Sets up the Map/Player and Camera. Camera is always centered on the player,
@@ -63,18 +75,16 @@ public class Game implements ApplicationListener {
 		Texture.setEnforcePotImages(false);
 		
 		// Set up the starting map, and load all maps into ram.
-		mapHandler = new MapHandler();
+		this.loadMaps();
+		
 		keyInput = new KeyInputHandler();
 		Gdx.input.setInputProcessor(keyInput);
-		mapHandler.loadMaps();
+		
+		// Creates the world, for our Box2D Entities.
+		this.createWorld();
 		
 		// Initiates the player, and puts him on the Spawn point.
-		player = new Player(mapHandler);
-		if(!player.isSpawned()) {
-			// Saves the current map, the player is on.
-			player.setCurrentMapName("StartIsland");
-			player.spawnPlayer();
-		}
+		this.createPlayer();
 		
 		// prepares the OrthographicCamera, for projection.
 		this.prepareCamera();
@@ -90,13 +100,31 @@ public class Game implements ApplicationListener {
 
 	}
 	
+	private void createPlayer() {
+		player = new Player("StartIsland", world);
+		if(!player.isSpawned()) {
+			player.spawnPlayer();
+		}
+	}
+
+	private void createWorld() {
+		world = new World(new Vector2(0,0), true);
+		world.setContactListener(new EntityContactListener());
+		debugRenderer = new Box2DDebugRenderer();
+	}
+
+	private void loadMaps() {
+		mapHandler = MapHandler.getInstance();
+		mapHandler.loadMaps();
+	}
+
 	/*
 	 * Prepares the OrthographicCamera and sets it on the startPosition.
 	 */
 	private void prepareCamera() {
-		camera = new OrthographicCamera(screenWidth/22, screenHeight/22);
+		camera = new OrthographicCamera(WIDTH, HEIGHT);            
+        camera.position.set(WIDTH / 2, HEIGHT / 2, 0);
 		player.setCamera(camera);
-		mapHandler.setCamera(camera);
 		camera.update();
 	}
 
@@ -116,18 +144,19 @@ public class Game implements ApplicationListener {
 		
 		Gdx.gl.glClearColor(0.55f, 0.55f, 0.55f, 1f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
+
 		this.updateAnimations();
 		
 		// ********** Start rendering area. **********
-		mapHandler.renderBackgroundMap();
+		mapHandler.renderBackgroundMap(camera);
 		
 		player.move();
-		player.render(spriteBatch);
+		this.renderWorldBodies();
 		
-		mapHandler.renderForegroundMap();
+		mapHandler.renderForegroundMap(camera);
 		
 		spriteBatch.begin();
+		font.setScale(0.05F);
 		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, 0);
 		spriteBatch.end();
 		// ********** End rendering area. **********
@@ -140,8 +169,32 @@ public class Game implements ApplicationListener {
 			} catch (InterruptedException e) {
 			}
 		}
+		
+		world.step(1/60f, 6, 2);
 
 		lastRender = now;
+	}
+	
+	private void renderWorldBodies() {
+		
+		Iterator<Body> bi = world.getBodies();
+        
+		// Update all positions
+		while (bi.hasNext()){
+		    Body b = bi.next();
+
+		    // Get the bodies user data - in this example, our user 
+		    // data is an instance of the Entity class
+		    Entity e = (Entity) b.getUserData();
+
+		    if (e != null) {
+		        // Update the entities/sprites position and angle
+		        e.setX(b.getPosition().x);
+		        e.setY(b.getPosition().y);
+		        // Render the Sprite
+		        e.render(spriteBatch);
+		    }
+		}
 	}
 	
 	private void updateAnimations() {
@@ -172,16 +225,16 @@ public class Game implements ApplicationListener {
 		@Override
 		public boolean keyDown(int keycode) {
 			if(keycode == Input.Keys.LEFT) {
-	            player.setMovingDirection(MovingDirection.LEFT);
+	            player.setMovingDirection(Direction.LEFT);
 	            player.setPressedKey(true);
 			} else if(keycode == Input.Keys.RIGHT) {
-				player.setMovingDirection(MovingDirection.RIGHT);
+				player.setMovingDirection(Direction.RIGHT);
 				player.setPressedKey(true);
 			} else if(keycode == Input.Keys.DOWN) {
-				player.setMovingDirection(MovingDirection.DOWN);
+				player.setMovingDirection(Direction.DOWN);
 				player.setPressedKey(true);
 			} else if (keycode == Input.Keys.UP) {
-				player.setMovingDirection(MovingDirection.UP);
+				player.setMovingDirection(Direction.UP);
 				player.setPressedKey(true);
 			}
 			return player.hasPressedKey();

@@ -1,62 +1,37 @@
 package com.github.sirkarpfen.entities;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.github.sirkarpfen.main.Viewable;
+import com.github.sirkarpfen.maps.MapStorage;
 
 /**
- * An entity represents any element that appears in the game and is actually movable.
- * The entity is responsible for resolving collisions and movement
- * based on a set of properties defined either by subclass or externally.
+ * The base class of all entities.
  * 
  * @author sirkarpfen
  *
  */
 public abstract class Entity implements Viewable {
+
 	/** The current x location of this entity */
 	protected float x;
+	/** @param x the x to set */
+	public void setX(float x) { this.x = x;	}
+	/** @return The x location of this entity */
+	public float getX() { return x; }
 	/** The current y location of this entity */
 	protected float y;
-	/** The movement speed of this entity */
-	protected float movementSpeed;
-	/** The OrthographicCamera used to view this Entity */
+	/** @param y the y to set */
+	public void setY(float y) { this.y = y; }
+	/** @return The y location of this entity */
+	public float getY() { return y; }
+	/** The OrthographicCamera used to view all Entities */
 	protected OrthographicCamera camera;
+	/** The storage containing all maps for use with every entity */
+	protected MapStorage mapStorage;
 	
-	protected TiledMapTileLayer collisionLayer;
-	/**
-	 * Gets the collisionLayer to use, when testing collisions with this entity.
-	 * @return The collisionLayer
-	 */
-	public TiledMapTileLayer getCollisionLayer() { return collisionLayer; }
-	/** Sets the collisionLayer to use, when testing collisions with this entity. */
-	public void setCollisionLayer(TiledMapTileLayer collisionLayer) { this.collisionLayer = collisionLayer; }
-	
-	/**
-	 * Do the logic associated with this entity. This method
-	 * will be called periodically based on game events
-	 * <p>
-	 * <b>THIS METHOD IS CURRENTLY UNUSED</b>
-	 * <p>
-	 * Implementation might follow. Currently not sure about that.
-	 */
-	public void doLogic() {}
-	
-	/**
-	 * Get the x location of this entity
-	 * 
-	 * @return The x location of this entity
-	 */
-	public float getX() {
-		return x;
-	}
-	
-	/**
-	 * Get the y location of this entity
-	 * 
-	 * @return The y location of this entity
-	 */
-	public float getY() {
-		return y;
+	protected Entity() {
+		this.mapStorage = MapStorage.getInstance();
 	}
 	
 	@Override
@@ -64,12 +39,12 @@ public abstract class Entity implements Viewable {
 		this.camera = camera;
 		camera.position.set(this.getX(), this.getY(), 0);
 	}
-
+	
 	/**
-	 * Moves this entity using the direction provided by the input handler.
+	 * Renders the Entity according to the SpriteBatch.
 	 * 
-	 * @see com.github.sirkarpfen.main.Game.KeyInputHandler
+	 * @param SpriteBatch The SpriteBatch to use for rendering.
 	 */
-	public abstract void move();
+	public abstract void render(SpriteBatch spriteBatch);
 	
 }

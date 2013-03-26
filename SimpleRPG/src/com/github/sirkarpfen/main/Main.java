@@ -16,6 +16,6 @@ public class Main {
 		config.width = 800;
 		config.height = 600;
 		//config.useGL20 = true; //this is important
-		new LwjglApplication(new Game(config.width, config.height), config);
+		new LwjglApplication(new Game(), config);
 	}
 }

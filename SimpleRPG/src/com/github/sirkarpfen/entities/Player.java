@@ -10,8 +10,11 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.World;
 import com.github.sirkarpfen.constants.Constants;
-import com.github.sirkarpfen.main.MapHandler;
 
 /**
  * This class represents the player character along with all respective values and images.
@@ -20,14 +23,10 @@ import com.github.sirkarpfen.main.MapHandler;
  * @author sirkarpfen
  *
  */
-public class Player extends Entity {
+public class Player extends MovingEntity {
 	
-	private String mapName;
-	/** Sets the name of the map, the player currently walks in */
-	public void setCurrentMapName(String mapName) { this.mapName = mapName;	}
-	/** Gets the name of the map, the player currently walks in */
-	public String getCurrentMapName() {	return mapName;	}
-	
+	private TiledMap startMap;
+	private Body playerBody;
 	private boolean spawned = false;
 	/** Indicates whether the player has already spawned, or not */
 	public boolean isSpawned() { return spawned; }
@@ -42,34 +41,32 @@ public class Player extends Entity {
 	
 	// Indicates the time between frames when rendering the animation.
 	private float stateTime;
-	
 	// Column amount of the spritesheet, used for animating.
 	private final int FRAME_COLS = 3;
 	// Row amount of the spritesheet, used for animating.
 	private final int FRAME_ROWS = 4;
-	
 	// the spritesheet to use for the animation.
+	
 	private Texture playerSheet;
 	// All those arrays are needed to switch animation direction, if the user
 	// switches movement direction.
 	private TextureRegion[] currentWalkFrames, walkFramesDown, walkFramesLeft, walkFramesRight, walkFramesUp;
-	
 	// The current frame to be rendered in this run.
 	private TextureRegion currentFrame;
-	
 	// The actual Animation object to use for this animation.
 	private Animation walkAnimation;
 	// the direction the player moves.
-	private MovingDirection movingDirection;
+	private Direction movingDirection;
+	// the world for our bodies.
+	private World world;
 	/** Sets the direction this player moves to. */
-	public void setMovingDirection(MovingDirection direction) { this.movingDirection = direction; }
+	public void setMovingDirection(Direction direction) { this.movingDirection = direction; }
 	/** Gets the direction this player moves to. */
-	public MovingDirection getMovingDirection() { return movingDirection; }
+	public Direction getMovingDirection() { return movingDirection; }
 	
-	private MapHandler mapHandler;
-	
-	public Player(MapHandler mapHandler) {
-		this.mapHandler = mapHandler;
+	public Player(String startMapName, World world) {
+		this.startMap = mapStorage.getMap(startMapName);
+		this.world = world;
 	}
 	
 	/**
@@ -78,11 +75,24 @@ public class Player extends Entity {
 	 */
 	public void spawnPlayer() {
 		this.findSpawnLocation();
+		// First we create a body definition
+		BodyDef bodyDef = new BodyDef();
+		// We set our body to dynamic, for something like ground which doesnt move we would set it to StaticBody
+		bodyDef.type = BodyType.DynamicBody;
+		// Set our body's starting position in the world
+		bodyDef.position.set(x, y);
+		
+		// Create our body in the world using our body definition
+		playerBody = world.createBody(bodyDef);
+		
+		playerBody.setUserData(this);
+
 		playerSheet = new Texture(Gdx.files.internal("data/sprites/player/charactersheet.png"));
 		playerSheet.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
 		TextureRegion[][] tmp = TextureRegion.split(playerSheet, playerSheet.getWidth() /
 				FRAME_COLS, playerSheet.getHeight() / FRAME_ROWS);
+		
 		walkFramesDown = new TextureRegion[FRAME_COLS];
 		walkFramesLeft = new TextureRegion[FRAME_COLS];
 		walkFramesRight = new TextureRegion[FRAME_COLS];
@@ -97,16 +107,15 @@ public class Player extends Entity {
 		currentWalkFrames = walkFramesDown;
 		walkAnimation = new Animation(Constants.ANIMATION_VELOCITY, currentWalkFrames);
 		stateTime = 0F;
-		this.setMovingDirection(MovingDirection.DOWN);
+		this.setMovingDirection(Direction.DOWN);
 		this.setSpawned(true);
 	}
 	
 	// Searches the object layer, and within the spawn location.
 	private void findSpawnLocation() {
-		TiledMap map = mapHandler.getMap(mapName);
-		MapObject o = map.getLayers().get("Objekte").getObjects().get("SpawnPoint");
+		MapObject o = startMap.getLayers().get("Objekte").getObjects().get("SpawnPoint");
 		if(o != null) {
-			mapHandler.setActiveMap(this, map);
+			mapStorage.setActiveMap(startMap);
 			
 			Rectangle rect = ((RectangleMapObject) o).getRectangle();
 			float tempX = rect.getX();
@@ -119,13 +128,23 @@ public class Player extends Entity {
 		}
 	}
 	
-	/**
-	 * Renders the player.
-	 * 
-	 * @param spriteBatch The SpriteBatch provided by the game class for rendering.
-	 * @see com.github.sirkarpfen.main.Game#render()
-	 */
+	@Override
 	public void render(SpriteBatch spriteBatch) {
+		spriteBatch.begin();
+		
+		spriteBatch.draw(currentFrame, x, y);
+		
+		spriteBatch.end();
+	}
+	
+	@Override
+	public void updateAnimations() {
+		/*
+		 * Currently very dirty.
+		 * There needs to be a way, to do this, without always initializing a
+		 * new animation object.
+		 */
+		walkAnimation = new Animation(Constants.ANIMATION_VELOCITY, currentWalkFrames);
 		
 		if(this.hasPressedKey()) {
 			
@@ -136,68 +155,50 @@ public class Player extends Entity {
 			
 			currentFrame = currentWalkFrames[1]; // 1 is the position of the "standing" sprite.
 			stateTime = 0;
-			this.setMovingDirection(MovingDirection.STAND);
+			this.setMovingDirection(Direction.STAND);
 			
 		}
-		
-		spriteBatch.begin();
-		
-		spriteBatch.draw(currentFrame, x, y, 2.0f, 2.0f);
-		
-		spriteBatch.end();
-	}
-	
-	/**
-	 * Updates the animations.
-	 */
-	public void updateAnimations() {
-		/*
-		 * Currently very dirty.
-		 * There needs to be a way, to do this, without always initializing a
-		 * new animation object.
-		 */
-		walkAnimation = new Animation(Constants.ANIMATION_VELOCITY, currentWalkFrames);
 	}
 	 	
 	@Override
 	public void move() {
 		
+		Rectangle rect = new Rectangle(camera.position.x, camera.position.y, 
+				walkFramesDown[1].getRegionWidth() * Constants.UNIT_SCALE, 
+				walkFramesDown[1].getRegionHeight() * Constants.UNIT_SCALE);
+		
+		System.out.println("cam.x: " + rect.getX() + ", cam.y: " + rect.getY());
+		System.out.println("frame.width: " + rect.getWidth() + ", frame.height: " + rect.getHeight());
 		switch(movingDirection) {
 		
 		case LEFT:
 			
 			currentWalkFrames = walkFramesLeft;
 			
-			if(MapHandler.collisionBounds[(int)(camera.position.x)][(int)camera.position.y] == 0)
-				camera.translate(-Constants.WALKING_VELOCITY, 0);
-			
+			camera.translate(-Constants.WALKING_VELOCITY, 0);
 			break;
 		case RIGHT:
 			
 			currentWalkFrames = walkFramesRight;
 			
-			if(MapHandler.collisionBounds[(int)(camera.position.x)][(int)camera.position.y] == 0)
-				camera.translate(Constants.WALKING_VELOCITY, 0);
-			
+			camera.translate(Constants.WALKING_VELOCITY, 0);
 			break;
 		case UP:
 			
 			currentWalkFrames = walkFramesUp;
 			
-			if(MapHandler.collisionBounds[(int)camera.position.x][(int)(camera.position.y)] == 0)
-				camera.translate(0, Constants.WALKING_VELOCITY);
-			
+			camera.translate(0, Constants.WALKING_VELOCITY);
 			break;
 		case DOWN:
 			
 			currentWalkFrames = walkFramesDown;
 			
-			if(MapHandler.collisionBounds[(int)camera.position.x][(int)(camera.position.y - 2)] == 0)
-				camera.translate(0, -Constants.WALKING_VELOCITY);
+			camera.translate(0, -Constants.WALKING_VELOCITY);
 			
 			break;
 		case STAND:
 			break;
 		}
 	}
+	
 }

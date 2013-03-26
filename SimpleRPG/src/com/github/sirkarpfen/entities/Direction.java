@@ -6,6 +6,6 @@ package com.github.sirkarpfen.entities;
  * @author sirkarpfen
  *
  */
-public enum MovingDirection {
+public enum Direction {
 	LEFT, RIGHT, UP, DOWN, STAND
 }
