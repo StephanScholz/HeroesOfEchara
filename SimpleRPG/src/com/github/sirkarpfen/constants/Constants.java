@@ -19,4 +19,6 @@ public class Constants {
 	public static final int WIDTH = 800;
 	/** The screen's height. */
 	public static final int HEIGHT = 600;
+	public static final int PLAYER_GROUP = 0;
+	public static final int ENVIRONMENT_GROUP = 1;
 }

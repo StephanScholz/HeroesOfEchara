@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.github.sirkarpfen.constants.Constants;
 
 /**
  * A singleton utility class, to perform all needed operations on tiled maps.
@@ -118,9 +119,8 @@ public class MapHandler {
 					shape.setAsBox(collisionLayer.getTileWidth()/2,
 							collisionLayer.getTileHeight()/2);
 					def.shape = shape;
-					def.isSensor = true;
-					def.density = 1f;
-					groundBody.createFixture(def);
+					def.filter.groupIndex = Constants.ENVIRONMENT_GROUP;
+					groundBody.createFixture(shape, 20F);
 					groundBody.setUserData(collisionLayer.getCell(x, y));
 					groundBody.setSleepingAllowed(false);
 					shape.dispose();

@@ -83,7 +83,7 @@ public class Player extends MovingEntity {
 		// First we create a body definition
 		BodyDef bodyDef = new BodyDef();
 		// We set our body to dynamic, for something like ground which doesnt move we would set it to StaticBody
-		bodyDef.type = BodyType.KinematicBody;
+		bodyDef.type = BodyType.DynamicBody;
 		// Set our body's starting position in the world
 		bodyDef.position.set(x, y);
 		// Create our body in the world using our body definition
@@ -99,7 +99,7 @@ public class Player extends MovingEntity {
 		fixtureDef.shape = shape;
 		fixtureDef.density = 1F;
 		fixtureDef.friction = 1F;
-		fixtureDef.isSensor = true;
+		fixtureDef.filter.groupIndex = Constants.PLAYER_GROUP;
 		playerBody.createFixture(fixtureDef);
 		shape.dispose();
 		playerBody.setUserData(this);

@@ -52,6 +52,7 @@ public class Game implements ApplicationListener {
 	
 	public World getWorld() { return world; }
 	
+	@SuppressWarnings ("unused")
 	private Box2DDebugRenderer debugRenderer;
 	
 	/**
@@ -155,13 +156,13 @@ public class Game implements ApplicationListener {
 			} catch (InterruptedException e) {
 			}
 		}
+		world.step(1, 1, 1);
 		
-		world.step(1, 6, 2);
 		/**
 		 * Draw this last, so we can see the collision boundaries on top of the
 		 * sprites and map.
 		 */
-		debugRenderer.render(world, camera.combined);
+		//debugRenderer.render(world, camera.combined);
 
 		lastRender = now;
 	}
