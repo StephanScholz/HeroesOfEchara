@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.github.sirkarpfen.constants.Constants;
 import com.github.sirkarpfen.entities.Direction;
 import com.github.sirkarpfen.entities.Entity;
 import com.github.sirkarpfen.entities.Player;
@@ -51,19 +52,7 @@ public class Game implements ApplicationListener {
 	
 	public World getWorld() { return world; }
 	
-	@SuppressWarnings ("unused")
 	private Box2DDebugRenderer debugRenderer;
-	
-	public static final float WORLD_TO_BOX = 0.01F;
-	public static final float BOX_TO_WORLD = 100F;
-
-	/*
-	 * The screen's width and height. This may not match that computed by
-	 * libgdx's gdx.graphics.getWidth() / getHeight() on devices that make use
-	 * of on-screen menu buttons.
-	 */
-	private static final int WIDTH = 800;
-	private static final int HEIGHT = 600;
 	
 	/**
 	 * Sets up the Map/Player and Camera. Camera is always centered on the player,
@@ -74,14 +63,14 @@ public class Game implements ApplicationListener {
 		// use GL10 without "power of two" enforcement.
 		Texture.setEnforcePotImages(false);
 		
-		// Set up the starting map, and load all maps into ram.
-		this.loadMaps();
-		
 		keyInput = new KeyInputHandler();
 		Gdx.input.setInputProcessor(keyInput);
 		
 		// Creates the world, for our Box2D Entities.
 		this.createWorld();
+		
+		// Set up the starting map, and load all maps into ram.
+		this.loadMaps();
 		
 		// Initiates the player, and puts him on the Spawn point.
 		this.createPlayer();
@@ -115,6 +104,7 @@ public class Game implements ApplicationListener {
 
 	private void loadMaps() {
 		mapHandler = MapHandler.getInstance();
+		mapHandler.setWorld(world);
 		mapHandler.loadMaps();
 	}
 
@@ -122,8 +112,7 @@ public class Game implements ApplicationListener {
 	 * Prepares the OrthographicCamera and sets it on the startPosition.
 	 */
 	private void prepareCamera() {
-		camera = new OrthographicCamera(WIDTH, HEIGHT);            
-        camera.position.set(WIDTH / 2, HEIGHT / 2, 0);
+		camera = new OrthographicCamera(Constants.WIDTH, Constants.HEIGHT);
 		player.setCamera(camera);
 		camera.update();
 	}
@@ -144,15 +133,12 @@ public class Game implements ApplicationListener {
 		
 		Gdx.gl.glClearColor(0.55f, 0.55f, 0.55f, 1f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-
-		this.updateAnimations();
 		
 		// ********** Start rendering area. **********
 		mapHandler.renderBackgroundMap(camera);
 		
-		player.move();
 		this.renderWorldBodies();
-		
+		player.move();
 		mapHandler.renderForegroundMap(camera);
 		
 		spriteBatch.begin();
@@ -170,7 +156,12 @@ public class Game implements ApplicationListener {
 			}
 		}
 		
-		world.step(1/60f, 6, 2);
+		world.step(1, 6, 2);
+		/**
+		 * Draw this last, so we can see the collision boundaries on top of the
+		 * sprites and map.
+		 */
+		debugRenderer.render(world, camera.combined);
 
 		lastRender = now;
 	}
@@ -185,20 +176,19 @@ public class Game implements ApplicationListener {
 
 		    // Get the bodies user data - in this example, our user 
 		    // data is an instance of the Entity class
-		    Entity e = (Entity) b.getUserData();
+		    Entity e = null;
+		    if(b.getUserData() instanceof Entity) {
+		    	e = (Entity) b.getUserData();
+		    }
 
 		    if (e != null) {
-		        // Update the entities/sprites position and angle
-		        e.setX(b.getPosition().x);
-		        e.setY(b.getPosition().y);
+		        if(e instanceof Player) {
+		        	((Player)e).updateAnimations();
+		        }
 		        // Render the Sprite
 		        e.render(spriteBatch);
 		    }
 		}
-	}
-	
-	private void updateAnimations() {
-		player.updateAnimations();
 	}
 
 	@Override
@@ -245,6 +235,7 @@ public class Game implements ApplicationListener {
 		public boolean keyUp(int keycode) {
 			if(keycode == Input.Keys.LEFT || keycode == Input.Keys.RIGHT ||
 			   keycode == Input.Keys.UP || keycode == Input.Keys.DOWN) {
+				player.setMovingDirection(Direction.STAND);
 				player.setPressedKey(false);
 			}
 			return false;

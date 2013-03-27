@@ -2,8 +2,14 @@ package com.github.sirkarpfen.maps;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 
 /**
  * A singleton utility class, to perform all needed operations on tiled maps.
@@ -19,6 +25,8 @@ public class MapHandler {
 	private OrthogonalTiledMapRenderer renderer;
 	// The MapStorage
 	private MapStorage mapStorage;
+	private World world;
+	public void setWorld(World world) { this.world = world; }
 	
 	
 	private MapHandler() {
@@ -50,6 +58,7 @@ public class MapHandler {
 	 * Renders all layers, that obscure the entities.
 	 */
 	public void renderForegroundMap(OrthographicCamera camera) {
+		renderer.getMap().getLayers().get("Meta_data").setVisible(false);
 		renderer.render(new int[] {13});
 		camera.update();
 	}
@@ -72,8 +81,54 @@ public class MapHandler {
 	public void loadMap(String mapName, String tmxFile) {
 		TiledMap map = new TmxMapLoader().load(tmxFile);
 		OrthogonalTiledMapRenderer renderer = new OrthogonalTiledMapRenderer(map, 1);
+		this.createBodyTiles(map);
 		mapStorage.putMap(mapName, map);
 		mapStorage.putRenderer(map, renderer);
+	}
+	
+	public void createBodyTiles(TiledMap map) {
+		TiledMapTileLayer collisionLayer = (TiledMapTileLayer)map.getLayers().get("Meta_data");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Tilemap:\n");
+		int tileCount = 0;
+		for(int y = 0; y < collisionLayer.getWidth(); y++) {
+			for(int x = 0; x < collisionLayer.getHeight(); x++) {
+				if(collisionLayer.getCell(x, y) != null && 
+						collisionLayer.getCell(x, y).getTile().getProperties().get("walkable").equals("false")) {
+					// Create our body definition
+					BodyDef groundBodyDef = new BodyDef();
+					groundBodyDef.type = BodyDef.BodyType.StaticBody;
+					if(x == 0 && y == 0) {
+						groundBodyDef.position.x = 0;
+						groundBodyDef.position.y = 0;
+					} else if(x == 0) {
+						groundBodyDef.position.x = 0;
+						groundBodyDef.position.y = y * collisionLayer.getTileHeight() + 7;
+					} else if(y == 0){
+						groundBodyDef.position.x = x * collisionLayer.getTileWidth() + 8;
+						groundBodyDef.position.y = 0;
+					} else {
+						groundBodyDef.position.x = x * collisionLayer.getTileWidth()+8;
+						groundBodyDef.position.y = y * collisionLayer.getTileHeight()+7;
+					}
+					buffer.append("Tile Nr." + tileCount + " x: " + groundBodyDef.position.x + ", y: " + groundBodyDef.position.y + "\n");
+					Body groundBody = world.createBody(groundBodyDef);
+					FixtureDef def = new FixtureDef();
+					PolygonShape shape = new PolygonShape();
+					shape.setAsBox(collisionLayer.getTileWidth()/2,
+							collisionLayer.getTileHeight()/2);
+					def.shape = shape;
+					def.isSensor = true;
+					def.density = 1f;
+					groundBody.createFixture(def);
+					groundBody.setUserData(collisionLayer.getCell(x, y));
+					groundBody.setSleepingAllowed(false);
+					shape.dispose();
+					tileCount++;
+				}
+			}
+		}
+		System.out.println(buffer.toString());
 	}
 	
 }

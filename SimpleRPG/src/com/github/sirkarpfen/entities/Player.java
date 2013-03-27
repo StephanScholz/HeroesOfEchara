@@ -10,9 +10,12 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.github.sirkarpfen.constants.Constants;
 
@@ -74,19 +77,38 @@ public class Player extends MovingEntity {
 	 * object-layer
 	 */
 	public void spawnPlayer() {
+		this.prepareTextures();
 		this.findSpawnLocation();
+		
 		// First we create a body definition
 		BodyDef bodyDef = new BodyDef();
 		// We set our body to dynamic, for something like ground which doesnt move we would set it to StaticBody
-		bodyDef.type = BodyType.DynamicBody;
+		bodyDef.type = BodyType.KinematicBody;
 		// Set our body's starting position in the world
 		bodyDef.position.set(x, y);
-		
 		// Create our body in the world using our body definition
 		playerBody = world.createBody(bodyDef);
-		
+		/**
+		 * Boxes are defined by their "half width" and "half height", hence the
+		 * 2 multiplier.
+		 */
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(currentWalkFrames[1].getRegionWidth() / 2 - 2,
+				currentWalkFrames[1].getRegionHeight() / 2 - 2);
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = shape;
+		fixtureDef.density = 1F;
+		fixtureDef.friction = 1F;
+		fixtureDef.isSensor = true;
+		playerBody.createFixture(fixtureDef);
+		shape.dispose();
 		playerBody.setUserData(this);
-
+				
+		this.setMovingDirection(Direction.DOWN);
+		this.setSpawned(true);
+	}
+	
+	private void prepareTextures() {
 		playerSheet = new Texture(Gdx.files.internal("data/sprites/player/charactersheet.png"));
 		playerSheet.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
@@ -107,8 +129,6 @@ public class Player extends MovingEntity {
 		currentWalkFrames = walkFramesDown;
 		walkAnimation = new Animation(Constants.ANIMATION_VELOCITY, currentWalkFrames);
 		stateTime = 0F;
-		this.setMovingDirection(Direction.DOWN);
-		this.setSpawned(true);
 	}
 	
 	// Searches the object layer, and within the spawn location.
@@ -122,8 +142,8 @@ public class Player extends MovingEntity {
 			float tempY = rect.getY();
 			// Float.parseFloat(object.getProperties().get("y").toString())
 			
-			this.x = tempX * Constants.UNIT_SCALE;
-			this.y = tempY * Constants.UNIT_SCALE;
+			this.x = tempX + currentWalkFrames[1].getRegionWidth()/2;
+			this.y = tempY + currentWalkFrames[1].getRegionHeight()/2;
 			
 		}
 	}
@@ -132,7 +152,8 @@ public class Player extends MovingEntity {
 	public void render(SpriteBatch spriteBatch) {
 		spriteBatch.begin();
 		
-		spriteBatch.draw(currentFrame, x, y);
+		spriteBatch.draw(currentFrame, x - currentFrame.getRegionWidth()/2,
+				y - currentFrame.getRegionHeight()/2);
 		
 		spriteBatch.end();
 	}
@@ -145,7 +166,7 @@ public class Player extends MovingEntity {
 		 * new animation object.
 		 */
 		walkAnimation = new Animation(Constants.ANIMATION_VELOCITY, currentWalkFrames);
-		
+		camera.position.set(playerBody.getPosition().x, playerBody.getPosition().y, 0);
 		if(this.hasPressedKey()) {
 			
 			stateTime += Gdx.graphics.getDeltaTime();
@@ -163,40 +184,29 @@ public class Player extends MovingEntity {
 	@Override
 	public void move() {
 		
-		Rectangle rect = new Rectangle(camera.position.x, camera.position.y, 
-				walkFramesDown[1].getRegionWidth() * Constants.UNIT_SCALE, 
-				walkFramesDown[1].getRegionHeight() * Constants.UNIT_SCALE);
-		
-		System.out.println("cam.x: " + rect.getX() + ", cam.y: " + rect.getY());
-		System.out.println("frame.width: " + rect.getWidth() + ", frame.height: " + rect.getHeight());
 		switch(movingDirection) {
 		
 		case LEFT:
-			
 			currentWalkFrames = walkFramesLeft;
-			
-			camera.translate(-Constants.WALKING_VELOCITY, 0);
+			playerBody.setLinearVelocity(new Vector2(-Constants.WALKING_VELOCITY, 0));
 			break;
 		case RIGHT:
 			
 			currentWalkFrames = walkFramesRight;
-			
-			camera.translate(Constants.WALKING_VELOCITY, 0);
+			playerBody.setLinearVelocity(new Vector2(Constants.WALKING_VELOCITY, 0));
 			break;
 		case UP:
 			
 			currentWalkFrames = walkFramesUp;
-			
-			camera.translate(0, Constants.WALKING_VELOCITY);
+			playerBody.setLinearVelocity(new Vector2(0, Constants.WALKING_VELOCITY));
 			break;
 		case DOWN:
 			
 			currentWalkFrames = walkFramesDown;
-			
-			camera.translate(0, -Constants.WALKING_VELOCITY);
-			
+			playerBody.setLinearVelocity(new Vector2(0, -Constants.WALKING_VELOCITY));
 			break;
 		case STAND:
+			playerBody.setLinearVelocity(new Vector2(0,0));
 			break;
 		}
 	}
