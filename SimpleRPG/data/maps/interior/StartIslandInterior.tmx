@@ -85,7 +85,7 @@
   </data>
  </layer>
  <objectgroup name="Objekte" width="30" height="30">
-  <object name="teleporter" x="176" y="320" width="32" height="16">
+  <object name="teleporter" x="176" y="304" width="32" height="16">
    <properties>
     <property name="destination" value="StartIsland"/>
     <property name="x" value="719"/>
