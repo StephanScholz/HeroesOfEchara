@@ -7,7 +7,7 @@ public class TeleportEventHandler implements TeleportListener {
 
 	@Override
 	public void onPlayerTeleport(TeleportEvent e) {
-		// TODO Auto-generated method stub
+		// TODO Implement teleport here
 		
 	}
 

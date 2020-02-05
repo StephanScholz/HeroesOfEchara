@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.github.sirkarpfen.constants.Constants;
 import com.github.sirkarpfen.entities.Direction;
 import com.github.sirkarpfen.entities.Player;
+import com.github.sirkarpfen.entities.Portal;
 import com.github.sirkarpfen.entities.eventhandler.EntityContactEventHandler;
 import com.github.sirkarpfen.entities.eventhandler.TeleportEventHandler;
 import com.github.sirkarpfen.maps.MapHandler;
@@ -76,6 +77,9 @@ public class RimGame extends Game {
 		// Initiates the player, and puts him on the Spawn point.
 		this.createPlayer();
 		
+		//TODO: Just for test purposes, creating a portal
+		Portal portal = new Portal(719, 650, world, camera);		
+		
 		// used for fast and smooth rendering.
 		cameraBatch = new SpriteBatch();
 		cameraBatch.setProjectionMatrix(camera.combined);
@@ -88,8 +92,9 @@ public class RimGame extends Game {
 	}
 	
 	private void createPlayer() {
-		player = new Player("StartIsland", world, camera);
-		if(!player.isSpawned()) {
+		player = new Player("StartIsland", world);
+		player.setCamera(camera);
+		if(!player.spawned()) {
 			player.spawnPlayer();
 		}
 	}
@@ -108,7 +113,6 @@ public class RimGame extends Game {
 	private void loadMaps() {
 		mapHandler = MapHandler.getInstance();
 		mapHandler.setWorld(world);
-		mapHandler.setCamera(camera);
 		mapHandler.loadMaps();
 	}
 

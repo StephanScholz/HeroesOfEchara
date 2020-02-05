@@ -9,8 +9,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 import com.github.sirkarpfen.entities.Entity;
 import com.github.sirkarpfen.entities.MovingEntity;
+import com.github.sirkarpfen.entities.Player;
 import com.github.sirkarpfen.main.RimGame;
 import com.github.sirkarpfen.maps.MapHandler;
 
@@ -90,13 +92,14 @@ public class GameScreen extends BaseScreen {
 			} catch (InterruptedException e) {
 			}
 		}
-		RimGame.getWorld().step(1, 1, 1);
+		World world = RimGame.getWorld();
+		world.step(1, 1, 1);
 		
 		/*
 		 * Draw this last, so we can see the collision boundaries on top of the
 		 * sprites and map.
 		 */
-		//debugRenderer.render(world, camera.combined);
+		debugRenderer.render(world, camera.combined);
 
 		lastRender = now;
 	}
@@ -105,6 +108,8 @@ public class GameScreen extends BaseScreen {
 	 * Renders the bodies for this world.
 	 */
 	private void renderWorldBodies() {
+		
+		cameraBatch.setProjectionMatrix(camera.combined);
 		
 		Iterator<Body> bi = RimGame.getWorld().getBodies();
         
@@ -118,21 +123,18 @@ public class GameScreen extends BaseScreen {
 		    if(b.getUserData() instanceof Entity) {
 		    	e = (Entity) b.getUserData();
 		    }
-
 		    if (e != null) {
 		        if(e instanceof MovingEntity) {
-		        	((MovingEntity)e).updateAnimations();
-		        	((MovingEntity)e).move();
+		        	MovingEntity me = (MovingEntity)e;
+		        	me.updateAnimations();
+		        	me.move();
+		        	me.render(cameraBatch);
+		        	
 		        }
 		        // Render the Sprite
 		        e.render(staticBatch);
 		    }
 		}
-		// Render the player last, otherwise other objects 
-		// would be in foreground if the player steps on them.
-		game.getPlayer().updateAnimations();
-		game.getPlayer().move();
-		game.getPlayer().render(cameraBatch);
 	}
 
 	@Override

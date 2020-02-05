@@ -32,7 +32,7 @@ public class Player extends MovingEntity {
 	private Body playerBody;
 	private boolean spawned = false;
 	/** Indicates whether the player has already spawned, or not */
-	public boolean isSpawned() { return spawned; }
+	public boolean spawned() { return spawned; }
 	/** Sets whether the player has spawned, or not */
 	public void setSpawned(boolean spawned) { this.spawned = spawned; }
 	
@@ -151,7 +151,6 @@ public class Player extends MovingEntity {
 	@Override
 	public void render(SpriteBatch spriteBatch) {
 		spriteBatch.begin();
-		
 		spriteBatch.draw(currentFrame, x - currentFrame.getRegionWidth()/2,
 				y - currentFrame.getRegionHeight()/2);
 		
@@ -167,6 +166,9 @@ public class Player extends MovingEntity {
 		 */
 		walkAnimation = new Animation(Constants.ANIMATION_VELOCITY, currentWalkFrames);
 		camera.position.set(playerBody.getPosition().x, playerBody.getPosition().y, 0);
+		camera.update();
+		x = playerBody.getPosition().x;
+		y = playerBody.getPosition().y;
 		if(this.hasPressedKey()) {
 			
 			stateTime += Gdx.graphics.getDeltaTime();
@@ -183,6 +185,8 @@ public class Player extends MovingEntity {
 	 	
 	@Override
 	public void move() {
+		
+		System.out.println("x: " + x + ", y: " + y);
 		
 		switch(movingDirection) {
 		

@@ -23,20 +23,21 @@ public class Portal extends MovingEntity {
 	private Body portalBody;
 	
 	private final int FRAME_COLS = 3;
-	private final int FRAME_ROWS = 2;
+	private final int FRAME_ROWS = 1;
 	private TextureRegion[] frames;
 	private float stateTime;
 	private TextureRegion currentFrame;
 	
 	public Portal(float x, float y, World world, OrthographicCamera camera) {
-		super(world, camera);
+		super();
 		this.x = x;
 		this.y = y;
 		this.prepareTextures();
+		this.camera = camera;
 		portalBody = BodyFactory.createBody(new Vector2(x,
 				y), BodyType.StaticBody);
 		CircleShape shape = BodyFactory.createCircleShape(frames[0].getRegionWidth()/4);
-		BodyFactory.createFixture(portalBody, shape, new float[]{1, 1, 1}, true, Constants.ENVIRONMENT_GROUP);
+		BodyFactory.createFixture(portalBody, shape, new float[]{1, 1, 1}, true, (short)Constants.ENVIRONMENT_GROUP);
 		portalBody.setUserData(this);
 		portalBody.setFixedRotation(true);
 	}

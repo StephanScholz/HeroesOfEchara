@@ -18,7 +18,7 @@ public class BodyFactory {
 	private static World world = RimGame.getWorld();
 	
 	/**
-	 * Creates a Polygon-formed body. Bodies returned with this method, are allways boxes.
+	 * Creates a Polygon-formed body. Bodies returned with this method, are always boxes.
 	 * If a polygon that is no box is needed, you have to use <code>FixtureType.CUSTOM</code> and create
 	 * the shape on your own.
 	 * <p>

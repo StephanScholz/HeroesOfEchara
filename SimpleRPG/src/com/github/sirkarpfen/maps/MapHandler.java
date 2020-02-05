@@ -59,9 +59,8 @@ public class MapHandler {
 	 * Renders all layers, that obscure the entities.
 	 */
 	public void renderForegroundMap(OrthographicCamera camera) {
-		renderer.getMap().getLayers().get("Meta_data").setVisible(false);
-		renderer.render(new int[] {13});
-		camera.update();
+		 renderer.getMap().getLayers().get("Meta_data").setVisible(false);
+		 renderer.render(new int[] {13}); camera.update();
 	}
 	
 	/**
@@ -128,7 +127,7 @@ public class MapHandler {
 				}
 			}
 		}
-		System.out.println(buffer.toString());
+		//System.out.println(buffer.toString());
 	}
 	
 }
