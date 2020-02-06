@@ -12,7 +12,6 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.github.sirkarpfen.entities.Entity;
 import com.github.sirkarpfen.entities.MovingEntity;
-import com.github.sirkarpfen.entities.Player;
 import com.github.sirkarpfen.main.RimGame;
 import com.github.sirkarpfen.maps.MapHandler;
 
@@ -67,6 +66,9 @@ public class GameScreen extends BaseScreen {
 		Gdx.gl.glClearColor(0.55f, 0.55f, 0.55f, 1f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
+		World world = RimGame.getWorld();
+		world.step(1, 1, 1);
+		
 		// ********** Start rendering area. **********
 		mapHandler.renderBackgroundMap(camera);
 		
@@ -92,8 +94,10 @@ public class GameScreen extends BaseScreen {
 			} catch (InterruptedException e) {
 			}
 		}
-		World world = RimGame.getWorld();
-		world.step(1, 1, 1);
+		
+		
+		// Destroy bodys, flagged as such
+		this.destroyBodies();
 		
 		/*
 		 * Draw this last, so we can see the collision boundaries on top of the
@@ -129,11 +133,33 @@ public class GameScreen extends BaseScreen {
 		        	me.updateAnimations();
 		        	me.move();
 		        	me.render(cameraBatch);
-		        	
 		        }
 		        // Render the Sprite
 		        e.render(staticBatch);
 		    }
+		}
+	}
+	
+	private void destroyBodies() {
+		Iterator<Body> bi = RimGame.getWorld().getBodies();
+		
+		while (bi.hasNext()) {
+			Body b = bi.next();
+			Entity e = null;
+			if (b.getUserData() instanceof Entity) {
+				e = (Entity) b.getUserData();
+				if(e.isFlaggedForDelete()) {
+					RimGame.getWorld().destroyBody(b);
+					b.setUserData(null);
+					b = null;
+					e.setFlaggedForDelete(false);
+					System.out.println("deleted body");
+				}
+				if(e.isFlaggedForCreate()) {
+					e.createBody();
+					System.out.println("create body");
+				}
+			}
 		}
 	}
 

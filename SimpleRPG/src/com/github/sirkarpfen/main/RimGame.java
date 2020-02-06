@@ -14,8 +14,8 @@ import com.github.sirkarpfen.constants.Constants;
 import com.github.sirkarpfen.entities.Direction;
 import com.github.sirkarpfen.entities.Player;
 import com.github.sirkarpfen.entities.Portal;
-import com.github.sirkarpfen.entities.eventhandler.EntityContactEventHandler;
-import com.github.sirkarpfen.entities.eventhandler.TeleportEventHandler;
+import com.github.sirkarpfen.events.eventhandler.EntityContactEventHandler;
+import com.github.sirkarpfen.events.eventhandler.TeleportEventHandler;
 import com.github.sirkarpfen.maps.MapHandler;
 import com.github.sirkarpfen.screens.BattleScreen;
 import com.github.sirkarpfen.screens.GameScreen;
@@ -60,7 +60,7 @@ public class RimGame extends Game {
 		Texture.setEnforcePotImages(false);
 		
 		eventManager = EventManager.getInstance();
-		eventManager.addTeleportEventListener(new TeleportEventHandler());
+		eventManager.addTeleportEventListener(new TeleportEventHandler(this));
 		
 		keyInput = new KeyInputHandler();
 		Gdx.input.setInputProcessor(keyInput);
@@ -78,7 +78,13 @@ public class RimGame extends Game {
 		this.createPlayer();
 		
 		//TODO: Just for test purposes, creating a portal
-		Portal portal = new Portal(719, 650, world, camera);		
+		Portal portal = new Portal(
+				720, 
+				650, 
+				650,
+				650,
+				world, 
+				camera);		
 		
 		// used for fast and smooth rendering.
 		cameraBatch = new SpriteBatch();

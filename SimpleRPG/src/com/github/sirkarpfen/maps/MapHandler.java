@@ -69,6 +69,7 @@ public class MapHandler {
 	 */
 	public void loadMaps() {
 		this.loadMap("StartIsland", "data/maps/StartIsland.tmx");
+		this.loadMap("StartIslandInterior", "data/maps/StartIslandInterior.tmx");
 	}
 
 	/**

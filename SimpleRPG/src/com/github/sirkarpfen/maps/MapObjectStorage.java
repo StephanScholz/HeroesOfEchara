@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 
+//TODO: Still needed?
 public class MapObjectStorage {
 	
 	private static MapObjectStorage instance;

@@ -18,4 +18,12 @@ public class Properties {
 			return '!' + key + '!';
 		}
 	}
+	
+	public static int getInt(String key) {
+		return Integer.parseInt(getString(key));
+	}
+	
+	public static float getFloat(String key) {
+		return Float.parseFloat(getString(key));
+	}
 }

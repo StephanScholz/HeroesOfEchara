@@ -11,13 +11,13 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.github.sirkarpfen.constants.Constants;
+import com.github.sirkarpfen.entities.properties.Properties;
 
 /**
  * This class represents the player character along with all respective values and images.
@@ -29,7 +29,6 @@ import com.github.sirkarpfen.constants.Constants;
 public class Player extends MovingEntity {
 	
 	private TiledMap startMap;
-	private Body playerBody;
 	private boolean spawned = false;
 	/** Indicates whether the player has already spawned, or not */
 	public boolean spawned() { return spawned; }
@@ -60,16 +59,14 @@ public class Player extends MovingEntity {
 	private Animation walkAnimation;
 	// the direction the player moves.
 	private Direction movingDirection;
-	// the world for our bodies.
-	private World world;
 	/** Sets the direction this player moves to. */
 	public void setMovingDirection(Direction direction) { this.movingDirection = direction; }
 	/** Gets the direction this player moves to. */
 	public Direction getMovingDirection() { return movingDirection; }
 	
 	public Player(String startMapName, World world) {
+		super(world);
 		this.startMap = mapStorage.getMap(startMapName);
-		this.world = world;
 	}
 	
 	/**
@@ -79,7 +76,14 @@ public class Player extends MovingEntity {
 	public void spawnPlayer() {
 		this.prepareTextures();
 		this.findSpawnLocation();
-		
+		this.createBody();
+		this.setMovingDirection(Direction.DOWN);
+		this.setSpawned(true);
+	}
+	
+	@Override
+	public void createBody() {
+		System.out.println("x: " + x + ", y: " + y);
 		// First we create a body definition
 		BodyDef bodyDef = new BodyDef();
 		// We set our body to dynamic, for something like ground which doesnt move we would set it to StaticBody
@@ -87,12 +91,13 @@ public class Player extends MovingEntity {
 		// Set our body's starting position in the world
 		bodyDef.position.set(x, y);
 		// Create our body in the world using our body definition
-		playerBody = world.createBody(bodyDef);
+		body = world.createBody(bodyDef);
 		/**
-		 * Boxes are defined by their "half width" and "half height", hence the
+	     * Boxes are defined by their "half width" and "half height", hence the
 		 * 2 multiplier.
 		 */
 		PolygonShape shape = new PolygonShape();
+		System.out.println(currentWalkFrames[1]);
 		shape.setAsBox(currentWalkFrames[1].getRegionWidth() / 2 - 2,
 				currentWalkFrames[1].getRegionHeight() / 2 - 2);
 		FixtureDef fixtureDef = new FixtureDef();
@@ -100,16 +105,14 @@ public class Player extends MovingEntity {
 		fixtureDef.density = 1F;
 		fixtureDef.friction = 1F;
 		fixtureDef.filter.groupIndex = Constants.PLAYER_GROUP;
-		playerBody.createFixture(fixtureDef);
+		body.createFixture(fixtureDef);
 		shape.dispose();
-		playerBody.setUserData(this);
-				
-		this.setMovingDirection(Direction.DOWN);
-		this.setSpawned(true);
+		body.setUserData(this);
+		flaggedForCreate = false;
 	}
 	
 	private void prepareTextures() {
-		playerSheet = new Texture(Gdx.files.internal("data/sprites/player/charactersheet.png"));
+		playerSheet = new Texture(Properties.getString("player_spritesheet"));
 		playerSheet.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
 		TextureRegion[][] tmp = TextureRegion.split(playerSheet, playerSheet.getWidth() /
@@ -159,16 +162,17 @@ public class Player extends MovingEntity {
 	
 	@Override
 	public void updateAnimations() {
+		if (flaggedForDelete) return;
 		/*
 		 * Currently very dirty.
 		 * There needs to be a way, to do this, without always initializing a
 		 * new animation object.
 		 */
 		walkAnimation = new Animation(Constants.ANIMATION_VELOCITY, currentWalkFrames);
-		camera.position.set(playerBody.getPosition().x, playerBody.getPosition().y, 0);
+		camera.position.set(body.getPosition().x, body.getPosition().y, 0);
 		camera.update();
-		x = playerBody.getPosition().x;
-		y = playerBody.getPosition().y;
+		x = body.getPosition().x;
+		y = body.getPosition().y;
 		if(this.hasPressedKey()) {
 			
 			stateTime += Gdx.graphics.getDeltaTime();
@@ -186,33 +190,41 @@ public class Player extends MovingEntity {
 	@Override
 	public void move() {
 		
-		System.out.println("x: " + x + ", y: " + y);
+		//System.out.println("x: " + x + ", y: " + y);
 		
 		switch(movingDirection) {
 		
 		case LEFT:
 			currentWalkFrames = walkFramesLeft;
-			playerBody.setLinearVelocity(new Vector2(-Constants.WALKING_VELOCITY, 0));
+			body.setLinearVelocity(new Vector2(-Constants.WALKING_VELOCITY, 0));
 			break;
 		case RIGHT:
 			
 			currentWalkFrames = walkFramesRight;
-			playerBody.setLinearVelocity(new Vector2(Constants.WALKING_VELOCITY, 0));
+			body.setLinearVelocity(new Vector2(Constants.WALKING_VELOCITY, 0));
 			break;
 		case UP:
 			
 			currentWalkFrames = walkFramesUp;
-			playerBody.setLinearVelocity(new Vector2(0, Constants.WALKING_VELOCITY));
+			body.setLinearVelocity(new Vector2(0, Constants.WALKING_VELOCITY));
 			break;
 		case DOWN:
 			
 			currentWalkFrames = walkFramesDown;
-			playerBody.setLinearVelocity(new Vector2(0, -Constants.WALKING_VELOCITY));
+			body.setLinearVelocity(new Vector2(0, -Constants.WALKING_VELOCITY));
 			break;
 		case STAND:
-			playerBody.setLinearVelocity(new Vector2(0,0));
+			body.setLinearVelocity(new Vector2(0,0));
 			break;
 		}
+	}
+	public void teleport(float destX, float destY) {
+		this.x = destX;
+		this.y = destY;
+		flaggedForDelete = true;
+		flaggedForCreate = true;
+		camera.update();
+		
 	}
 	
 }

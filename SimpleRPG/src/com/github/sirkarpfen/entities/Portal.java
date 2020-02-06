@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -20,7 +19,6 @@ public class Portal extends MovingEntity {
 	
 	private Texture spriteSheet;
 	private Animation animation;
-	private Body portalBody;
 	
 	private final int FRAME_COLS = 3;
 	private final int FRAME_ROWS = 1;
@@ -28,18 +26,30 @@ public class Portal extends MovingEntity {
 	private float stateTime;
 	private TextureRegion currentFrame;
 	
-	public Portal(float x, float y, World world, OrthographicCamera camera) {
-		super();
+	//Destination coordinates. Where does the portal lead to?
+	private float destX, destY;
+	public float getDestX() {return destX;}
+	public float getDestY() {return destY;}
+	
+	public Portal(float x, float y, float destX, float destY, World world, OrthographicCamera camera) {
+		super(world);
 		this.x = x;
 		this.y = y;
+		this.destX = destX;
+		this.destY = destY;
 		this.prepareTextures();
 		this.camera = camera;
-		portalBody = BodyFactory.createBody(new Vector2(x,
+		this.createBody();
+	}
+	
+	@Override
+	public void createBody() {
+		body = BodyFactory.createBody(new Vector2(x,
 				y), BodyType.StaticBody);
 		CircleShape shape = BodyFactory.createCircleShape(frames[0].getRegionWidth()/4);
-		BodyFactory.createFixture(portalBody, shape, new float[]{1, 1, 1}, true, (short)Constants.ENVIRONMENT_GROUP);
-		portalBody.setUserData(this);
-		portalBody.setFixedRotation(true);
+		BodyFactory.createFixture(body, shape, new float[]{1, 1, 1}, true, (short)Constants.ENVIRONMENT_GROUP);
+		body.setUserData(this);
+		body.setFixedRotation(true);
 	}
 	
 	@Override
@@ -56,8 +66,8 @@ public class Portal extends MovingEntity {
 		//camera.unproject(new Vector3(portalBody.getPosition().x, portalBody.getPosition().y, 0));
 		spriteBatch.setProjectionMatrix(camera.combined);
 		spriteBatch.begin();
-		spriteBatch.draw(currentFrame, portalBody.getPosition().x - currentFrame.getRegionWidth()/2,
-				portalBody.getPosition().y - currentFrame.getRegionHeight()/2);
+		spriteBatch.draw(currentFrame, body.getPosition().x - currentFrame.getRegionWidth()/2,
+				body.getPosition().y - currentFrame.getRegionHeight()/2);
 		spriteBatch.end();
 	}
 
@@ -77,5 +87,6 @@ public class Portal extends MovingEntity {
 		animation = new Animation(Constants.ANIMATION_VELOCITY, frames);
 		stateTime = 0F;
 	}
+	
 	
 }

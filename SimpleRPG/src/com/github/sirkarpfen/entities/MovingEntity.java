@@ -1,7 +1,6 @@
 package com.github.sirkarpfen.entities;
 
-
-
+import com.badlogic.gdx.physics.box2d.World;
 
 /**
  * A MovingEntity represents any element that appears in the game and is actually movable.
@@ -13,6 +12,10 @@ package com.github.sirkarpfen.entities;
  */
 public abstract class MovingEntity extends Entity {
 	
+	protected MovingEntity(World world) {
+		super(world);
+	}
+
 	/**
 	 * Do the logic associated with this entity. This method
 	 * will be called periodically based on game events

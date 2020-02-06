@@ -2,6 +2,8 @@ package com.github.sirkarpfen.entities;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.World;
 import com.github.sirkarpfen.main.Viewable;
 import com.github.sirkarpfen.maps.MapStorage;
 
@@ -25,13 +27,24 @@ public abstract class Entity implements Viewable {
 	public void setY(float y) { this.y = y; }
 	/** @return The y location of this entity */
 	public float getY() { return y; }
+	/** the world for our bodies. */
+	protected World world;
 	/** The OrthographicCamera used to view all Entities */
 	protected OrthographicCamera camera;
 	/** The storage containing all maps for use with every entity */
 	protected MapStorage mapStorage;
 	
-	protected Entity() {
+	protected Body body;
+	
+	protected boolean flaggedForDelete = false;
+	public boolean isFlaggedForDelete() {return flaggedForDelete;}
+	public void setFlaggedForDelete(boolean flag) {this.flaggedForDelete = flag;}
+	protected boolean flaggedForCreate = false;
+	public boolean isFlaggedForCreate() {return flaggedForCreate;}
+	
+	protected Entity(World world) {
 		this.mapStorage = MapStorage.getInstance();
+		this.world = world;
 	}
 	
 	@Override
@@ -46,5 +59,7 @@ public abstract class Entity implements Viewable {
 	 * @param SpriteBatch The SpriteBatch to use for rendering.
 	 */
 	public abstract void render(SpriteBatch spriteBatch);
+	
+	public abstract void createBody();
 	
 }
