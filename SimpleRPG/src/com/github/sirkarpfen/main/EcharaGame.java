@@ -20,7 +20,7 @@ import com.github.sirkarpfen.maps.MapHandler;
 import com.github.sirkarpfen.screens.BattleScreen;
 import com.github.sirkarpfen.screens.GameScreen;
 
-public class RimGame extends Game {
+public class EcharaGame extends Game {
 	
 	private KeyInputHandler keyInput;
 	/* Helper class for dealing with tiled maps. Credits go to "dpk". */

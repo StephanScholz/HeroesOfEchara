@@ -2,13 +2,13 @@ package com.github.sirkarpfen.events.eventhandler;
 
 import com.github.sirkarpfen.events.TeleportEvent;
 import com.github.sirkarpfen.events.listeners.TeleportListener;
-import com.github.sirkarpfen.main.RimGame;
+import com.github.sirkarpfen.main.EcharaGame;
 
 public class TeleportEventHandler implements TeleportListener {
 
-	private RimGame game;
+	private EcharaGame game;
 	
-	public TeleportEventHandler(RimGame game) {
+	public TeleportEventHandler(EcharaGame game) {
 		this.game = game;
 	}
 	

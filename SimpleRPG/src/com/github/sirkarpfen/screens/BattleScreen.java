@@ -2,13 +2,13 @@ package com.github.sirkarpfen.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
-import com.github.sirkarpfen.main.RimGame;
+import com.github.sirkarpfen.main.EcharaGame;
 
 public class BattleScreen extends BaseScreen {
 
-	private RimGame game;
+	private EcharaGame game;
 
-	public BattleScreen(RimGame game) {
+	public BattleScreen(EcharaGame game) {
 		super(game);
 		this.game = game;
 	}

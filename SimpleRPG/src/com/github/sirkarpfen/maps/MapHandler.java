@@ -69,7 +69,7 @@ public class MapHandler {
 	 */
 	public void loadMaps() {
 		this.loadMap("StartIsland", "data/maps/StartIsland.tmx");
-		this.loadMap("StartIslandInterior", "data/maps/StartIslandInterior.tmx");
+		this.loadMap("StartIslandInterior", "data/maps/interior/StartIslandInterior.tmx");
 	}
 
 	/**
@@ -88,9 +88,9 @@ public class MapHandler {
 	}
 	
 	public void createBodyTiles(TiledMap map) {
+		//TODO: Get collision layer working
 		TiledMapTileLayer collisionLayer = (TiledMapTileLayer)map.getLayers().get("Meta_data");
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("Tilemap:\n");
 		int tileCount = 0;
 		for(int y = 0; y < collisionLayer.getWidth(); y++) {
 			for(int x = 0; x < collisionLayer.getHeight(); x++) {
@@ -128,7 +128,6 @@ public class MapHandler {
 				}
 			}
 		}
-		//System.out.println(buffer.toString());
 	}
 	
 }

@@ -11,11 +11,11 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.github.sirkarpfen.main.RimGame;
+import com.github.sirkarpfen.main.EcharaGame;
 
 public class BodyFactory {
 	
-	private static World world = RimGame.getWorld();
+	private static World world = EcharaGame.getWorld();
 	
 	/**
 	 * Creates a Polygon-formed body. Bodies returned with this method, are always boxes.

@@ -12,7 +12,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.github.sirkarpfen.entities.Entity;
 import com.github.sirkarpfen.entities.MovingEntity;
-import com.github.sirkarpfen.main.RimGame;
+import com.github.sirkarpfen.main.EcharaGame;
 import com.github.sirkarpfen.maps.MapHandler;
 
 /**
@@ -38,7 +38,7 @@ public class GameScreen extends BaseScreen {
 
 	private MapHandler mapHandler;
 	
-	public GameScreen(RimGame game) {
+	public GameScreen(EcharaGame game) {
 		super(game);
 		lastRender = System.nanoTime();
 		font = new BitmapFont();
@@ -66,7 +66,7 @@ public class GameScreen extends BaseScreen {
 		Gdx.gl.glClearColor(0.55f, 0.55f, 0.55f, 1f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
-		World world = RimGame.getWorld();
+		World world = EcharaGame.getWorld();
 		world.step(1, 1, 1);
 		
 		// ********** Start rendering area. **********
@@ -115,7 +115,7 @@ public class GameScreen extends BaseScreen {
 		
 		cameraBatch.setProjectionMatrix(camera.combined);
 		
-		Iterator<Body> bi = RimGame.getWorld().getBodies();
+		Iterator<Body> bi = EcharaGame.getWorld().getBodies();
         
 		// Update all positions
 		while (bi.hasNext()){
@@ -141,7 +141,7 @@ public class GameScreen extends BaseScreen {
 	}
 	
 	private void destroyBodies() {
-		Iterator<Body> bi = RimGame.getWorld().getBodies();
+		Iterator<Body> bi = EcharaGame.getWorld().getBodies();
 		
 		while (bi.hasNext()) {
 			Body b = bi.next();
@@ -149,7 +149,7 @@ public class GameScreen extends BaseScreen {
 			if (b.getUserData() instanceof Entity) {
 				e = (Entity) b.getUserData();
 				if(e.isFlaggedForDelete()) {
-					RimGame.getWorld().destroyBody(b);
+					EcharaGame.getWorld().destroyBody(b);
 					b.setUserData(null);
 					b = null;
 					e.setFlaggedForDelete(false);

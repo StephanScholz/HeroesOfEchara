@@ -3,15 +3,15 @@ package com.github.sirkarpfen.screens;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.github.sirkarpfen.constants.Constants;
-import com.github.sirkarpfen.main.RimGame;
+import com.github.sirkarpfen.main.EcharaGame;
 
 public class BaseScreen implements Screen {
 	
-	protected RimGame game;
+	protected EcharaGame game;
 	
 	private Stage stage;
 
-	public BaseScreen(RimGame game) {
+	public BaseScreen(EcharaGame game) {
 		this.game = game;
 		this.stage = new Stage(Constants.WIDTH, Constants.HEIGHT, true);
 	}
