@@ -1,8 +1,10 @@
 package com.github.sirkarpfen.maps;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -29,6 +31,25 @@ public class MapHandler {
 	private World world;
 	public void setWorld(World world) { this.world = world; }
 	
+	private int[] backgroundLayerArray;
+	private TiledMapTileLayer foregroundLayer;
+	/**
+	 * Sets the maximum amount of Layers. This amount is then used by the renderer, to render the
+	 * Foreground and Background in the correct order. For simplicity, it is always necessary to declare the
+	 * Foreground-layer as last. Using tile to create maps, you should strife to make the foreground the very last layer
+	 * otherwise unforeseen things might happen.
+	 * 
+	 * @param count The maximum amount of Layers of the active map.
+	 */
+	public void setRenderLayers(int count) {
+		backgroundLayerArray = new int[count-1];
+		for (int i = 0; i < count-1; i++) {
+			backgroundLayerArray[i] = i+1;
+			System.out.println(backgroundLayerArray[i]);
+		}
+		foregroundLayer = mapStorage.getTileLayer("foreground");
+	}
+	
 	
 	private MapHandler() {
 		mapStorage = MapStorage.getInstance();
@@ -51,7 +72,7 @@ public class MapHandler {
 			renderer = mapStorage.getActiveRenderer();
 		}
 		renderer.setView(camera);
-		renderer.render(new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12});
+		renderer.render();
 		camera.update();
 	}
 	
@@ -60,7 +81,8 @@ public class MapHandler {
 	 */
 	public void renderForegroundMap(OrthographicCamera camera) {
 		 renderer.getMap().getLayers().get("Meta_data").setVisible(false);
-		 renderer.render(new int[] {13}); camera.update();
+		 renderer.renderTileLayer(foregroundLayer);
+		 camera.update();
 	}
 	
 	/**
@@ -87,15 +109,22 @@ public class MapHandler {
 		mapStorage.putRenderer(map, renderer);
 	}
 	
+	/**
+	 * For every object, specified in the Maps "meta_data layer" that should not be walked over,
+	 * or that can be manipulated in any way, this method creates a rigid Body (Static, non movable)
+	 * to act collision detection on. Future objects may include npcs, chests, quest items and many more.
+	 * 
+	 * @param map The loaded map
+	 */
 	public void createBodyTiles(TiledMap map) {
-		//TODO: Get collision layer working
 		TiledMapTileLayer collisionLayer = (TiledMapTileLayer)map.getLayers().get("Meta_data");
-		StringBuffer buffer = new StringBuffer();
-		int tileCount = 0;
+		//StringBuffer buffer = new StringBuffer();
+		//int tileCount = 0;
 		for(int y = 0; y < collisionLayer.getWidth(); y++) {
 			for(int x = 0; x < collisionLayer.getHeight(); x++) {
-				if(collisionLayer.getCell(x, y) != null && 
-						collisionLayer.getCell(x, y).getTile().getProperties().get("walkable").equals("false")) {
+				Cell cell = collisionLayer.getCell(x, y);
+				if(cell != null && 
+						cell.getTile().getProperties().get("walkable") != null) {
 					// Create our body definition
 					BodyDef groundBodyDef = new BodyDef();
 					groundBodyDef.type = BodyDef.BodyType.StaticBody;
@@ -112,7 +141,7 @@ public class MapHandler {
 						groundBodyDef.position.x = x * collisionLayer.getTileWidth()+8;
 						groundBodyDef.position.y = y * collisionLayer.getTileHeight()+7;
 					}
-					buffer.append("Tile Nr." + tileCount + " x: " + groundBodyDef.position.x + ", y: " + groundBodyDef.position.y + "\n");
+					//buffer.append("Tile Nr." + tileCount + " x: " + groundBodyDef.position.x + ", y: " + groundBodyDef.position.y + "\n");
 					Body groundBody = world.createBody(groundBodyDef);
 					FixtureDef def = new FixtureDef();
 					PolygonShape shape = new PolygonShape();
@@ -124,10 +153,11 @@ public class MapHandler {
 					groundBody.setUserData(collisionLayer.getCell(x, y));
 					groundBody.setSleepingAllowed(false);
 					shape.dispose();
-					tileCount++;
+					//tileCount++;
 				}
 			}
 		}
+		//System.out.println(buffer);
 	}
 	
 }

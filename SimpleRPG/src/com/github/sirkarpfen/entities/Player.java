@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -83,11 +84,12 @@ public class Player extends MovingEntity {
 	
 	@Override
 	public void createBody() {
-		System.out.println("x: " + x + ", y: " + y);
 		// First we create a body definition
 		BodyDef bodyDef = new BodyDef();
 		// We set our body to dynamic, for something like ground which doesnt move we would set it to StaticBody
 		bodyDef.type = BodyType.DynamicBody;
+		// Set fixed rotation, so that collision detection will work properly
+		bodyDef.fixedRotation = true;
 		// Set our body's starting position in the world
 		bodyDef.position.set(x, y);
 		// Create our body in the world using our body definition
@@ -96,10 +98,9 @@ public class Player extends MovingEntity {
 	     * Boxes are defined by their "half width" and "half height", hence the
 		 * 2 multiplier.
 		 */
-		PolygonShape shape = new PolygonShape();
+		CircleShape shape = new CircleShape();
 		System.out.println(currentWalkFrames[1]);
-		shape.setAsBox(currentWalkFrames[1].getRegionWidth() / 2 - 2,
-				currentWalkFrames[1].getRegionHeight() / 2 - 2);
+		shape.setRadius(currentWalkFrames[1].getRegionWidth() / 2 - 2);
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
 		fixtureDef.density = 1F;

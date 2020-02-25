@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -17,6 +18,7 @@ import com.github.sirkarpfen.entities.Portal;
 import com.github.sirkarpfen.events.eventhandler.EntityContactEventHandler;
 import com.github.sirkarpfen.events.eventhandler.TeleportEventHandler;
 import com.github.sirkarpfen.maps.MapHandler;
+import com.github.sirkarpfen.maps.MapStorage;
 import com.github.sirkarpfen.screens.BattleScreen;
 import com.github.sirkarpfen.screens.GameScreen;
 
@@ -78,13 +80,7 @@ public class EcharaGame extends Game {
 		this.createPlayer();
 		
 		//TODO: Just for test purposes, creating a portal
-		Portal portal = new Portal(
-				720, 
-				650, 
-				650,
-				650,
-				world, 
-				camera);		
+		Portal portal = new Portal("teleporter1", world, camera);		
 		
 		// used for fast and smooth rendering.
 		cameraBatch = new SpriteBatch();

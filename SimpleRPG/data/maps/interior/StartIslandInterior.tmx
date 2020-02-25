@@ -1,37 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
-<map version="1.0" orientation="orthogonal" width="30" height="30" tilewidth="16" tileheight="16">
- <tileset firstgid="1" name="Walls" tilewidth="16" tileheight="16">
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="2">
+ <tileset firstgid="1" name="Walls" tilewidth="16" tileheight="16" tilecount="960" columns="32">
   <image source="../../tilesets/celiannatilea4.png" width="512" height="480"/>
  </tileset>
- <tileset firstgid="961" name="Floor" tilewidth="16" tileheight="16">
+ <tileset firstgid="961" name="Floor" tilewidth="16" tileheight="16" tilecount="512" columns="16">
   <image source="../../tilesets/celiannatilea5.png" width="256" height="512"/>
  </tileset>
- <tileset firstgid="1473" name="Outside Dekoration" tilewidth="16" tileheight="16">
+ <tileset firstgid="1473" name="Outside Dekoration" tilewidth="16" tileheight="16" tilecount="1024" columns="32">
   <image source="../../tilesets/celiannatilec.png" width="512" height="512"/>
  </tileset>
- <tileset firstgid="2497" name="Interior" tilewidth="16" tileheight="16">
+ <tileset firstgid="2497" name="Interior" tilewidth="16" tileheight="16" tilecount="1024" columns="32">
   <image source="../../tilesets/celiannatiled.png" width="512" height="512"/>
  </tileset>
- <tileset firstgid="3521" name="Interior2" tilewidth="16" tileheight="16">
+ <tileset firstgid="3521" name="Interior2" tilewidth="16" tileheight="16" tilecount="1024" columns="32">
   <image source="../../tilesets/celiannatilee.png" width="512" height="512"/>
  </tileset>
- <tileset firstgid="4545" name="Interior3" tilewidth="16" tileheight="16">
+ <tileset firstgid="4545" name="Interior3" tilewidth="16" tileheight="16" tilecount="1024" columns="32">
   <image source="../../tilesets/TileC.png" width="512" height="512"/>
  </tileset>
- <tileset firstgid="5569" name="Interior4" tilewidth="16" tileheight="16">
+ <tileset firstgid="5569" name="Interior4" tilewidth="16" tileheight="16" tilecount="1024" columns="32">
   <image source="../../tilesets/TileD.png" width="512" height="512"/>
  </tileset>
- <tileset firstgid="6593" name="Interior5" tilewidth="16" tileheight="16">
+ <tileset firstgid="6593" name="Interior5" tilewidth="16" tileheight="16" tilecount="1024" columns="32">
   <image source="../../tilesets/TileE.png" width="512" height="512"/>
  </tileset>
- <tileset firstgid="7617" name="WallsMack" tilewidth="16" tileheight="16">
+ <tileset firstgid="7617" name="WallsMack" tilewidth="16" tileheight="16" tilecount="960" columns="32">
   <image source="../../tilesets/TileA4.png" width="512" height="480"/>
  </tileset>
- <tileset firstgid="8577" name="Chest1" tilewidth="16" tileheight="16">
+ <tileset firstgid="8577" name="Chest1" tilewidth="16" tileheight="16" tilecount="384" columns="24">
   <image source="../../tilesets/Chest1.png" width="384" height="256"/>
  </tileset>
- <tileset firstgid="8961" name="meta_tiles" tilewidth="16" tileheight="16">
+ <tileset firstgid="8961" name="meta_tiles" tilewidth="16" tileheight="16" tilecount="8" columns="4">
   <image source="../../tilesets/meta_tiles.png" width="67" height="34"/>
   <tile id="0">
    <properties>
@@ -59,43 +58,48 @@
    </properties>
   </tile>
  </tileset>
- <layer name="Boden" width="30" height="30">
+ <layer id="1" name="Boden" width="30" height="30">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAACzvIzMBwCIgP0pm+CMSXBoCmtz9H/Tvq31H/Dn//erMwMPiwkE5T6t9ooBkxLKTTo/4d9e+of7HTMDOHc3k10srnUf+O+nfUv4RpAFWkfFMQDgAA
+   H4sIAAAAAAAECr2WQQqEQAwEB9bfuT9YP6s/0BdtLgVeQicQ+hAKxtCVvnl+1rpiTjPv8D0xbrp74nP3xIffTfxuunvic/fEh99N/G66e+JTPfdtrW9MlyoXf8ZfOI+YLrM83tVd3Z7sq1z8Gbs92c/yeFd3cX+XKhd/Ru7vMsvjXd3V7cm+ysWfsduT/SyPd3XX+zuZE/8n+N1895noUc1z98RXvW96D7+b0z2qee6e+Kr3Te/hd3O6RzXvD1WkfFMQDgAA
   </data>
  </layer>
- <layer name="Wände" width="30" height="30">
+ <layer id="2" name="Wände" width="30" height="30">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NgGAWjYGQAE3kGhk1QvJlE2liefHtLgHovQfFlEulCCuydAtT7CYo/k0hPpNC/QgoQLEwiTal/jRQg2JhEmlL/kgso9S+5YNS/xINR/xIPhqJ/RYB6g4A4GIphAFksCActTIG9o2AUjIJRMJgAAFpJcDEQDgAA
+   H4sIAAAAAAAECmNgGAWjITAyQsBEnoFhExRvJpE2BqonF5QA9V6C4ssk0oUU2DsFqPcTFH8mkZ5Igb0g/wopQLAwiTSl/jUC2gfCxiTSlPqXgUxAqX/JtJZh1L/EhxwoPZMLRuOX+JADlVfkAkrSswjQ3iAgDoZimBuQxWBsdFqYAjfD7BmlR0NgNARGQ2AwhAAAWklwMRAOAAA=
   </data>
  </layer>
- <layer name="Fenster" width="30" height="30">
+ <layer id="3" name="Fenster" width="30" height="30">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC+3NIQEAIBAEsDPg+f71IAcRcG/YCiwBfrBXclb/OyqZ1f8CAPB2AaYaniwQDgAA
+   H4sIAAAAAAAECu3QQQkAIBQFwXfRu/avpzn8KURwFrbAJCJA4AeBNZJd367NpNciQIAAAQIECBB4T+AAphqeLBAOAAA=
   </data>
  </layer>
- <layer name="Deko" width="30" height="30">
+ <layer id="4" name="Deko" width="30" height="30">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC+3PRwrCQBiG4f8AZpPkInoTBcs1FCyXiA0sl0gsYLmEZWP3CpatZeEL2URcicEBnQ+ezSzmnRHR09NTsaTtSyGNjB1+wzFFyubzWd72FVBECTvsscE2hHe4ND3z9bzB3U200MYNd1xwDaE7oTmFE+HfqKCKAXcPMcI40IkaIjHj8+6B5hEuLQ8ddLGgtcQK60A3TjMRQvfdZWnmFHRrNOsKuj2afQXdX97MEplb3++eaJ4VdPX09PT+YQ/vrESbEA4AAA==
+   H4sIAAAAAAAECu3RRwrCUBCA4TmAbtSL6E0ULNdQsFwiNrBcwljAcgnLxu4VLFvLwj+74C4k5CHMwLcL78+bJ6KjG9ANmNhANiHiyCGPAoIeKyZSh3vKdBwVVFHDGRcccYLfGdC0f7rOmR3O7qKHPt744IkX/M6S5gpWhHujgSamnD3DHAtXJxkVScHvXGneMKBlY4gRtrR22OPg6qZpZgLoev3vIs2SgW6LZttAd0xzYqDr9V3+6ft1XGSDsOdO82GgG/Y9tacb0A3oBkxs4AvvrESbEA4AAA==
   </data>
  </layer>
- <layer name="Items" width="30" height="30">
+ <layer id="5" name="Items" width="30" height="30">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC+3NwQmAMABD0YCe6hbVRXQLXVfB7qGgY5gNLFioh/8gt8CXAAD4v6aTWm8PUgrv/zFKU/ze7d0cvMvNO6M7u7kU6K5ubRm90g43zwpdAEAdD/uk6TQQDgAA
+   H4sIAAAAAAAECmNgGAWjITAaAqMhMBoCoyEw+EOAmZuBgQWIj3MxMJwAYkLAUYmBwQmIKQXKQDtVgPg50M4XRNgbCbQzigr2HgbadYQI+yj1H7r+x0A7nwyAvejuGOWPhsBoCIyGwGgI0CcEAPuk6TQQDgAA
   </data>
  </layer>
- <objectgroup name="Objekte" width="30" height="30">
-  <object name="teleporter" x="176" y="304" width="32" height="16">
+ <objectgroup id="6" name="Objekte">
+  <object id="1" name="teleporter1" x="176" y="304" width="32" height="16">
    <properties>
+    <property name="destX" value="719"/>
+    <property name="destY" value="720"/>
     <property name="destination" value="StartIsland"/>
-    <property name="x" value="719"/>
-    <property name="y" value="720"/>
    </properties>
   </object>
  </objectgroup>
- <layer name="Meta_data" width="30" height="30">
+ <layer id="7" name="Meta_data" width="30" height="30">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NgGAWjYBSMgoEBjMoITG3z8GFk9dSwkx56Rrq9MHNISTPUSlvkmkOp3QNhLyG9+Nw0FO1FNhu9bMDGp3aZNQpGwSgYBYMBAAAJcTXSEA4AAA==
+   H4sIAAAAAAAECu2QUQrAIAxDu7Ps/neUfARKPyzGDTdIQUrVpI9EuJyAE3ACZxK47gieJwjo1XXuwr/dUjwUTeVUPBTNV/aCA/z5VLY682+9X51VH+h26sTejnnG1GlnWXTat/aCid6ZgXdk5pw739ydgBNwAn9PYAAJcTXSEA4AAA==
+  </data>
+ </layer>
+ <layer id="9" name="foreground" width="30" height="30">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAECu3QgQAAAADDoPlTH+SFUGHAgAEDBgwYMGDAgAEDjwMDe25clxAOAAA=
   </data>
  </layer>
 </map>

@@ -102,6 +102,7 @@ public class MapStorage {
 	public void setActiveMap(TiledMap map) {
 		this.activeMap = map;
 		this.activeRenderer = renderTable.get(map);
+		MapHandler.getInstance().setRenderLayers(map.getLayers().getCount());
 	}
 	
 }
